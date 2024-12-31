@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
+  password  String
+  userType  Int // 1 for Customer, 0 for Seller
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[] @relation("SellerProducts") // Only applicable for Sellers
+  orders    Order[]   @relation("CustomerOrders") // Only applicable for Customers
+  cart      Cart[]    @relation("CustomerCart") // Customer's cart
+}
+
+model Product {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  image       String?
+  sellerId    Int
+  seller      User        @relation("SellerProducts", fields: [sellerId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  orderItems  OrderItem[] @relation("ProductOrderItems")
+  Cart        Cart[]
+}
+
+model Cart {
+  id         Int      @id @default(autoincrement())
+  customerId Int
+  customer   User     @relation("CustomerCart", fields: [customerId], references: [id])
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id])
+  quantity   Int      @default(1)
+  createdAt  DateTime @default(now())
+}
+
+model Order {
+  id         Int         @id @default(autoincrement())
+  customerId Int
+  customer   User        @relation("CustomerOrders", fields: [customerId], references: [id])
+  totalPrice Float
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  items      OrderItem[]
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product @relation("ProductOrderItems", fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+}

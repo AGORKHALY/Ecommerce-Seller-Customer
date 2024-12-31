@@ -1,0 +1,94 @@
+//REGISTER USER
+# POST http://localhost:4000/api/users/register
+# Content-Type: application/json
+
+# {
+#   "username": "Manjil",
+#   "password": "Manjilpassword123",
+#   "userType": 1
+# }
+
+
+//LOGIN USER TO GET TOKEN
+# POST http://localhost:4000/api/users/login
+# Content-Type: application/json
+
+# {
+#   "username": "Abhyudaya",
+#   "password": "Abhyudayapassword123",
+#   "userType": 1
+# }
+
+
+//CHECK AUTHENTICATON(PROTECTED ROUTE)
+# GET http://localhost:4000/api/protected
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1pbHUiLCJ1c2VyVHlwZSI6MCwiaWF0IjoxNzM1NjE5OTM2LCJleHAiOjE3MzU2MjM1MzZ9.1lvs2jUnBatQEEnKt9ZDl5phKMlzAB-zbJnJwHX1smQ
+
+
+//ADD PRODUCT BY SELLER 
+# POST http://localhost:4000/api/seller/add-product
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNaWx1IiwidXNlclR5cGUiOjAsImlhdCI6MTczNTYyMzI3MCwiZXhwIjoxNzM1NjI2ODcwfQ.clts7hOuXIXa6KcfXtR3FqiLI6vtA5aWWZmUHZmwpRE
+# Content-Type: application/json
+
+# {
+#     "name": "Laptop",
+#     "description": "A high-performance laptop",
+#     "price": 1200,
+#     "image": "http://example.com/laptop.jpg"
+# }
+
+
+//CHANGE PRICE FOR PRODUCT FOR SELLER
+# POST http://localhost:4000/api/seller/set-price
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNaWx1IiwidXNlclR5cGUiOjAsImlhdCI6MTczNTYyMzI3MCwiZXhwIjoxNzM1NjI2ODcwfQ.clts7hOuXIXa6KcfXtR3FqiLI6vtA5aWWZmUHZmwpRE
+# Content-Type: application/json
+
+# {
+#   "productId": 1,
+#   "newPrice": 1300
+# }
+
+
+//VIEW ALL PRODUCTS FOR CUSTOMER
+# GET http://localhost:4000/api/customer/products
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBYmh5dWRheWEiLCJ1c2VyVHlwZSI6MSwiaWF0IjoxNzM1NjI0OTM0LCJleHAiOjE3MzU2Mjg1MzR9.0aCU7uhY7lPaGgQxmQDSnJerR9I4ixNXErq0hj57rX4
+
+
+//ADD TO CART FOR CUSTOMER
+# POST http://localhost:4000/api/customer/cart
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBYmh5dWRheWEiLCJ1c2VyVHlwZSI6MSwiaWF0IjoxNzM1NjI0OTM0LCJleHAiOjE3MzU2Mjg1MzR9.0aCU7uhY7lPaGgQxmQDSnJerR9I4ixNXErq0hj57rX4
+# Content-Type: application/json
+
+# {
+#     "productId": 1,
+#     "quantity": 2
+# }
+
+
+//VIEW CART FOR CUSTOMER
+# GET http://localhost:4000/api/customer/cart
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBYmh5dWRheWEiLCJ1c2VyVHlwZSI6MSwiaWF0IjoxNzM1NjI0OTM0LCJleHAiOjE3MzU2Mjg1MzR9.0aCU7uhY7lPaGgQxmQDSnJerR9I4ixNXErq0hj57rX4
+
+//DELETE FROM CART FOR CUSTOMER
+# DELETE  http://localhost:4000/api/customer/cart
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBYmh5dWRheWEiLCJ1c2VyVHlwZSI6MSwiaWF0IjoxNzM1NjI0OTM0LCJleHAiOjE3MzU2Mjg1MzR9.0aCU7uhY7lPaGgQxmQDSnJerR9I4ixNXErq0hj57rX4
+# Content-Type: application/json
+
+# {
+#     "cartItemId": 3
+# }
+
+
+//BUY FOR CUSTOMER
+# POST http://localhost:4000/api/customer/buy
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBYmh5dWRheWEiLCJ1c2VyVHlwZSI6MSwiaWF0IjoxNzM1NjI0OTM0LCJleHAiOjE3MzU2Mjg1MzR9.0aCU7uhY7lPaGgQxmQDSnJerR9I4ixNXErq0hj57rX4
+# Content-Type: application/json
+
+# {
+#     "cartItemIds":[2]
+# }
+
+
+//GET ORDER HISTORY FOR CUSTOMER
+# GET http://localhost:4000/api/customer/orders
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBYmh5dWRheWEiLCJ1c2VyVHlwZSI6MSwiaWF0IjoxNzM1NjI0OTM0LCJleHAiOjE3MzU2Mjg1MzR9.0aCU7uhY7lPaGgQxmQDSnJerR9I4ixNXErq0hj57rX4
