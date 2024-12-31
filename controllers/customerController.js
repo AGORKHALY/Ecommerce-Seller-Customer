@@ -149,26 +149,21 @@ const viewCart = async (req, res) => {
 
 // Buy products (place an order and delete from cart)
 const buy = async (req, res) => {
-    const { cartItemIds } = req.body;
-
-    if (!cartItemIds || cartItemIds.length === 0) {
-        return res.status(400).json({ message: "Cart items are required" });
-    }
-
     try {
-        // Find the cart items
+        // Find all cart items for the logged-in customer
         const cartItems = await prisma.cart.findMany({
-            where: { id: { in: cartItemIds }, customerId: req.user.id },
+            where: { customerId: req.user.id },
             include: { product: true },
         });
 
         if (cartItems.length === 0) {
-            return res.status(404).json({ message: "Cart items not found" });
+            return res.status(404).json({ message: "Your cart is empty. Please add items to your cart before purchasing." });
         }
 
+        // Calculate the total price
         const totalPrice = cartItems.reduce((total, item) => total + (item.product.price * item.quantity), 0);
 
-        // Create the order
+        // Create the order with order items
         const order = await prisma.order.create({
             data: {
                 customerId: req.user.id,
@@ -178,14 +173,14 @@ const buy = async (req, res) => {
                         productId: item.productId,
                         quantity: item.quantity,
                         price: item.product.price,
-                    }))
-                }
-            }
+                    })),
+                },
+            },
         });
 
-        // Delete cart items after purchase
+        // Delete all cart items for the user after purchase
         await prisma.cart.deleteMany({
-            where: { id: { in: cartItemIds } }
+            where: { customerId: req.user.id },
         });
 
         return res.status(201).json({ message: "Order placed successfully", order });
@@ -193,6 +188,7 @@ const buy = async (req, res) => {
         return res.status(500).json({ message: "Error processing order", error });
     }
 };
+
 
 // View order history
 const viewOrderHistory = async (req, res) => {

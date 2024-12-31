@@ -3,9 +3,9 @@
 # Content-Type: application/json
 
 # {
-#   "username": "Manjil",
-#   "password": "Manjilpassword123",
-#   "userType": 1
+#   "username": "Nishan",
+#   "password": "Nishanpassword123",
+#   "userType": 0
 # }
 
 
@@ -14,9 +14,8 @@
 # Content-Type: application/json
 
 # {
-#   "username": "Abhyudaya",
-#   "password": "Abhyudayapassword123",
-#   "userType": 1
+#   "username": "Milu",
+#   "password": "Milupassword123"
 # }
 
 
@@ -27,14 +26,14 @@
 
 //ADD PRODUCT BY SELLER 
 # POST http://localhost:4000/api/seller/add-product
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNaWx1IiwidXNlclR5cGUiOjAsImlhdCI6MTczNTYyMzI3MCwiZXhwIjoxNzM1NjI2ODcwfQ.clts7hOuXIXa6KcfXtR3FqiLI6vtA5aWWZmUHZmwpRE
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJOaXNoYW4iLCJ1c2VyVHlwZSI6MCwiaWF0IjoxNzM1NjM0MzQzLCJleHAiOjE3MzU2Mzc5NDN9.Ch0CqDBFBrYrxCUKy1HS_tBtmJvAPxkZPRnIMlWUFCc
 # Content-Type: application/json
 
 # {
-#     "name": "Laptop",
-#     "description": "A high-performance laptop",
-#     "price": 1200,
-#     "image": "http://example.com/laptop.jpg"
+#     "name": "Mouse",
+#     "description": "A high-performance gaming mouse",
+#     "price": 1500,
+#     "image": "http://example.com/mouse.jpg"
 # }
 
 
@@ -51,12 +50,12 @@
 
 //VIEW ALL PRODUCTS FOR CUSTOMER
 # GET http://localhost:4000/api/customer/products
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBYmh5dWRheWEiLCJ1c2VyVHlwZSI6MSwiaWF0IjoxNzM1NjI0OTM0LCJleHAiOjE3MzU2Mjg1MzR9.0aCU7uhY7lPaGgQxmQDSnJerR9I4ixNXErq0hj57rX4
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBYmh5dWRheWEiLCJ1c2VyVHlwZSI6MSwiaWF0IjoxNzM1NjM0NDM5LCJleHAiOjE3MzU2MzgwMzl9.WhKO9ZespFUDkKuEXb9WSYrl7dgNfbZiVbITDi-ohbk
 
 
 //ADD TO CART FOR CUSTOMER
 # POST http://localhost:4000/api/customer/cart
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBYmh5dWRheWEiLCJ1c2VyVHlwZSI6MSwiaWF0IjoxNzM1NjI0OTM0LCJleHAiOjE3MzU2Mjg1MzR9.0aCU7uhY7lPaGgQxmQDSnJerR9I4ixNXErq0hj57rX4
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNaWx1IiwidXNlclR5cGUiOjAsImlhdCI6MTczNTYzNTY0MSwiZXhwIjoxNzM1NjM5MjQxfQ.tv4QjlsZRKwfgp48SOijtLa2ZW6XEOthsXJRIOhX3qc
 # Content-Type: application/json
 
 # {
@@ -67,7 +66,7 @@
 
 //VIEW CART FOR CUSTOMER
 # GET http://localhost:4000/api/customer/cart
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBYmh5dWRheWEiLCJ1c2VyVHlwZSI6MSwiaWF0IjoxNzM1NjI0OTM0LCJleHAiOjE3MzU2Mjg1MzR9.0aCU7uhY7lPaGgQxmQDSnJerR9I4ixNXErq0hj57rX4
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNaWx1IiwidXNlclR5cGUiOjAsImlhdCI6MTczNTYzNTY0MSwiZXhwIjoxNzM1NjM5MjQxfQ.tv4QjlsZRKwfgp48SOijtLa2ZW6XEOthsXJRIOhX3qc
 
 //DELETE FROM CART FOR CUSTOMER
 # DELETE  http://localhost:4000/api/customer/cart
@@ -81,14 +80,10 @@
 
 //BUY FOR CUSTOMER
 # POST http://localhost:4000/api/customer/buy
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBYmh5dWRheWEiLCJ1c2VyVHlwZSI6MSwiaWF0IjoxNzM1NjI0OTM0LCJleHAiOjE3MzU2Mjg1MzR9.0aCU7uhY7lPaGgQxmQDSnJerR9I4ixNXErq0hj57rX4
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNaWx1IiwidXNlclR5cGUiOjAsImlhdCI6MTczNTYzNTY0MSwiZXhwIjoxNzM1NjM5MjQxfQ.tv4QjlsZRKwfgp48SOijtLa2ZW6XEOthsXJRIOhX3qc
 # Content-Type: application/json
-
-# {
-#     "cartItemIds":[2]
-# }
 
 
 //GET ORDER HISTORY FOR CUSTOMER
 # GET http://localhost:4000/api/customer/orders
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBYmh5dWRheWEiLCJ1c2VyVHlwZSI6MSwiaWF0IjoxNzM1NjI0OTM0LCJleHAiOjE3MzU2Mjg1MzR9.0aCU7uhY7lPaGgQxmQDSnJerR9I4ixNXErq0hj57rX4
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNaWx1IiwidXNlclR5cGUiOjAsImlhdCI6MTczNTYzNTY0MSwiZXhwIjoxNzM1NjM5MjQxfQ.tv4QjlsZRKwfgp48SOijtLa2ZW6XEOthsXJRIOhX3qc
