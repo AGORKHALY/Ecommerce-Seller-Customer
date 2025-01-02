@@ -2,6 +2,7 @@ const express = require('express');
 const createError = require('http-errors');
 require('dotenv').config()
 const authenticateToken = require('./middleware/authenticateToken');
+const path = require('path');
 
 
 const app = express();
@@ -21,6 +22,8 @@ app.use('/api/customer', require('./routes/customerRoutes'))
 app.get('/api/protected', authenticateToken, (req, res) => {
     res.status(200).json({ message: 'You have access to this route!', user: req.user });
 });
+
+app.use('/media', express.static(path.join(__dirname, 'media')));
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running at http://localhost ${PORT}`));

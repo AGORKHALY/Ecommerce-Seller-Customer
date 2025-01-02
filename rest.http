@@ -14,8 +14,8 @@
 # Content-Type: application/json
 
 # {
-#   "username": "Milu",
-#   "password": "Milupassword123"
+#   "username": "Abhyudaya",
+#   "password": "Abhyudayapassword123"
 # }
 
 
@@ -33,7 +33,7 @@
 #     "name": "Mouse",
 #     "description": "A high-performance gaming mouse",
 #     "price": 1500,
-#     "image": "http://example.com/mouse.jpg"
+#     "image": "@/mouse.jpeg"
 # }
 
 

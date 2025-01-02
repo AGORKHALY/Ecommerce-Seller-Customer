@@ -1,35 +1,34 @@
-const prisma = require('../models/prismaClient');
+const path = require('path');
+const fs = require('fs');
+const prisma = require('../models/prismaClient'); // Your Prisma client
+const upload = require('../middleware/upload'); // Assuming you have an upload middleware for handling file uploads
 
 // Add a new product
 const addProduct = async (req, res) => {
-    const { name, description, price, image } = req.body;
+    const { name, description, price } = req.body;
+    const image = req.file ? `/media/${req.file.filename}` : null;
 
     if (!name || !description || !price || !image) {
-        return res.status(400).json({ message: "All fields are required." });
+        return res.status(400).json({ message: "All fields (name, description, price, image) are required" });
     }
 
-    console.log('User:', req.user);  // Log user details to check the id
-
     try {
-        console.log('Seller ID:', req.user.id);  // Log the Seller ID to ensure it's correct
-
-        const newProduct = await prisma.product.create({
+        const product = await prisma.product.create({
             data: {
                 name,
                 description,
-                price,
-                image,
+                price: parseFloat(price),
+                image, // Save the image path in the database
                 sellerId: req.user.id,
-            }
+            },
         });
 
-        return res.status(201).json({ message: "Product added successfully", product: newProduct });
+        return res.status(201).json({ message: "Product added successfully", product });
     } catch (error) {
-        console.error("Error adding product:", error);
+        console.error('Error adding product:', error);
         return res.status(500).json({ message: "Error adding product", error });
     }
 };
-
 
 // Update the price of a product
 const setPrice = async (req, res) => {
@@ -66,25 +65,32 @@ const setPrice = async (req, res) => {
 
 // Upload an image for a product
 const uploadImage = async (req, res) => {
-    const { productId, imageUrl } = req.body;
+    const { productId } = req.body;
+    const image = req.file ? `/media/${req.file.filename}` : null;
 
-    // Validate inputs
-    if (!productId || !imageUrl) {
-        return res.status(400).json({ message: 'Invalid input: productId and imageUrl are required.' });
+    if (!productId || !image) {
+        return res.status(400).json({ message: 'Invalid input: productId and image are required.' });
     }
 
     try {
-        // Check if the product exists and if the user is the seller
         const product = await prisma.product.findUnique({ where: { id: productId } });
 
         if (!product || product.sellerId !== req.user.id) {
             return res.status(403).json({ message: 'Access denied: You are not authorized to update this product.' });
         }
 
-        // Update the product image
+        // Delete the old image file (if it exists)
+        if (product.image) {
+            const oldImagePath = `./public${product.image}`;
+            if (fs.existsSync(oldImagePath)) {
+                fs.unlinkSync(oldImagePath);  // Synchronously delete the old image file
+            }
+        }
+
+        // Update the product image in the database
         const updatedProduct = await prisma.product.update({
             where: { id: productId },
-            data: { image: imageUrl },
+            data: { image },
         });
 
         return res.status(200).json({
@@ -129,7 +135,6 @@ const updateDescription = async (req, res) => {
         return res.status(500).json({ message: 'Error updating description.', error });
     }
 };
-
 
 module.exports = {
     addProduct,
