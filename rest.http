@@ -3,8 +3,8 @@
 # Content-Type: application/json
 
 # {
-#   "username": "Nishan",
-#   "password": "Nishanpassword123",
+#   "username": "Milu",
+#   "password": "Milupassword123",
 #   "userType": 0
 # }
 
@@ -24,9 +24,9 @@
 # Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1pbHUiLCJ1c2VyVHlwZSI6MCwiaWF0IjoxNzM1NjE5OTM2LCJleHAiOjE3MzU2MjM1MzZ9.1lvs2jUnBatQEEnKt9ZDl5phKMlzAB-zbJnJwHX1smQ
 
 
-//ADD PRODUCT BY SELLER 
+//ADD PRODUCT BY SELLER (NEED FOR POSTMAN BECAUSE OF IMAGE FILE UPLOAD)
 # POST http://localhost:4000/api/seller/add-product
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJOaXNoYW4iLCJ1c2VyVHlwZSI6MCwiaWF0IjoxNzM1NjM0MzQzLCJleHAiOjE3MzU2Mzc5NDN9.Ch0CqDBFBrYrxCUKy1HS_tBtmJvAPxkZPRnIMlWUFCc
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNaWx1IiwidXNlclR5cGUiOjAsImlhdCI6MTczNTg3OTQzMCwiZXhwIjoxNzM1ODgzMDMwfQ.bnvgN7UD2st9rkrGWKpS6Ve1wMRgo0KZ_7Om2HJYZ_U
 # Content-Type: application/json
 
 # {
@@ -55,7 +55,7 @@
 
 //ADD TO CART FOR CUSTOMER
 # POST http://localhost:4000/api/customer/cart
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNaWx1IiwidXNlclR5cGUiOjAsImlhdCI6MTczNTYzNTY0MSwiZXhwIjoxNzM1NjM5MjQxfQ.tv4QjlsZRKwfgp48SOijtLa2ZW6XEOthsXJRIOhX3qc
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBYmh5dWRheWEiLCJ1c2VyVHlwZSI6MSwiaWF0IjoxNzM1ODgwNjM3LCJleHAiOjE3MzU4ODQyMzd9.d7b_nBzrMZ28vcb2o342gyzNK_wsZOsnOOCG2HvbzK0
 # Content-Type: application/json
 
 # {
@@ -80,10 +80,10 @@
 
 //BUY FOR CUSTOMER
 # POST http://localhost:4000/api/customer/buy
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNaWx1IiwidXNlclR5cGUiOjAsImlhdCI6MTczNTYzNTY0MSwiZXhwIjoxNzM1NjM5MjQxfQ.tv4QjlsZRKwfgp48SOijtLa2ZW6XEOthsXJRIOhX3qc
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBYmh5dWRheWEiLCJ1c2VyVHlwZSI6MSwiaWF0IjoxNzM1ODgwNjM3LCJleHAiOjE3MzU4ODQyMzd9.d7b_nBzrMZ28vcb2o342gyzNK_wsZOsnOOCG2HvbzK0
 # Content-Type: application/json
 
 
 //GET ORDER HISTORY FOR CUSTOMER
 # GET http://localhost:4000/api/customer/orders
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNaWx1IiwidXNlclR5cGUiOjAsImlhdCI6MTczNTYzNTY0MSwiZXhwIjoxNzM1NjM5MjQxfQ.tv4QjlsZRKwfgp48SOijtLa2ZW6XEOthsXJRIOhX3qc
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJBYmh5dWRheWEiLCJ1c2VyVHlwZSI6MSwiaWF0IjoxNzM1ODgwNjM3LCJleHAiOjE3MzU4ODQyMzd9.d7b_nBzrMZ28vcb2o342gyzNK_wsZOsnOOCG2HvbzK0
