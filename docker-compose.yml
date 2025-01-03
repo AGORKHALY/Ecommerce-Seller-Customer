@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  ecommerce-db:
+    image: postgres:13
+    container_name: ecommerce-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ecommerce_db
+    networks:
+      - ecommerce-network
+    ports:
+      - "5433:5432"
+    volumes:
+      - ecommerce-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+      start_period: 10s
+
+  ecommerce-app:
+    build: .
+    container_name: ecommerce-app
+    environment:
+      - NODE_ENV=docker
+      - DATABASE_URL=postgresql://postgres:postgres@ecommerce-db:5432/ecommerce_db?schema=public
+    networks:
+      - ecommerce-network
+    depends_on:
+      - ecommerce-db
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/usr/src/app
+    command: |
+      bash -c "
+        npx prisma generate &&
+        npx prisma migrate deploy && 
+        npm run dev
+      "
+
+networks:
+  ecommerce-network:
+    driver: bridge
+
+volumes:
+  ecommerce-db-data:
+    driver: local
