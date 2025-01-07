@@ -9,8 +9,8 @@ const registerUser = async (req, res) => {
     try {
         const { username, password, userType } = req.body;
 
-        if (!username || !password || (userType == !0 && userType == !1)) {
-            return res.status(400).json({ error: 'Invalid input: username, password and userType are required' });
+        if (!username || !password || (userType !== 0 && userType !== 1)) {
+            return res.status(400).json({ error: 'Invalid input: username, password, and userType are required' });
         }
 
         const existingUser = await prisma.user.findUnique({
@@ -30,13 +30,29 @@ const registerUser = async (req, res) => {
             },
         });
 
+        // Generate the access and refresh tokens
+        const accessToken = jwt.sign(
+            { id: newUser.id, username: newUser.username, userType: newUser.userType },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRATION }
+        );
+
+        const refreshToken = jwt.sign(
+            { id: newUser.id, username: newUser.username, userType: newUser.userType },
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION }
+        );
+
+        // Respond with tokens and user details
         res.status(201).json({
             message: 'User registered successfully.',
+            accessToken,
+            refreshToken,
             user: { id: newUser.id, username: newUser.username, userType: newUser.userType },
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'An error occured while registering the user' });
+        res.status(500).json({ error: 'An error occurred while registering the user' });
     }
 };
 
