@@ -105,6 +105,7 @@ const Register = () => {
                 localStorage.setItem('accessToken', response.data.accessToken);
                 localStorage.setItem('refreshToken', response.data.refreshToken);
                 localStorage.setItem('userType', response.data.user.userType);
+                localStorage.setItem('sellerId', response.data.user.userTypeId);
 
                 toast.success('Registration successful! Redirecting to dashboard...', {
                     position: 'top-center',

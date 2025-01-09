@@ -9,13 +9,13 @@
 # }
 
 
-//LOGIN USER TO GET TOKEN
+# //LOGIN USER TO GET TOKEN
 # POST http://localhost:4000/api/users/login
 # Content-Type: application/json
 
 # {
-#   "username": "Sulle",
-#   "password": "Sullepassword123"
+#   "username": "Milu",
+#   "password": "Milupassword123"
 # }
 
 
@@ -39,11 +39,11 @@
 
 //CHANGE PRICE FOR PRODUCT FOR SELLER
 # POST http://localhost:4000/api/seller/set-price
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNaWx1IiwidXNlclR5cGUiOjAsImlhdCI6MTczNTYyMzI3MCwiZXhwIjoxNzM1NjI2ODcwfQ.clts7hOuXIXa6KcfXtR3FqiLI6vtA5aWWZmUHZmwpRE
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNaWx1IiwidXNlclR5cGUiOjAsImlhdCI6MTczNjQwMDk0MSwiZXhwIjoxNzM2NDA0NTQxfQ.UxQSpowvHV7YdIQJPmtNCAlTC6ovo8GEqDG2GAeD--E
 # Content-Type: application/json
 
 # {
-#   "productId": 1,
+#   "productId": 6,
 #   "newPrice": 1300
 # }
 

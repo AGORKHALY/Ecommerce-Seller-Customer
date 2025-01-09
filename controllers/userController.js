@@ -5,6 +5,7 @@ const prisma = require('../models/prismaClient');
 const router = express.Router();
 require('dotenv').config()
 
+// Register User
 const registerUser = async (req, res) => {
     try {
         const { username, password, userType } = req.body;
@@ -17,7 +18,7 @@ const registerUser = async (req, res) => {
             where: { username },
         });
         if (existingUser) {
-            return res.status(400).json({ error: 'Username already exists.' })
+            return res.status(400).json({ error: 'Username already exists.' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -56,7 +57,6 @@ const registerUser = async (req, res) => {
     }
 };
 
-
 const loginUser = async (req, res) => {
     const { username, password } = req.body;
 
@@ -81,25 +81,44 @@ const loginUser = async (req, res) => {
 
         // Generate the access and refresh tokens with user details
         const accessToken = jwt.sign(
-            { id: user.id, username: user.username, userType: user.userType }, // Include userType in the token
+            { id: user.id, username: user.username, userType: user.userType },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRATION }
         );
 
         const refreshToken = jwt.sign(
-            { id: user.id, username: user.username, userType: user.userType }, // Include userType here as well
+            { id: user.id, username: user.username, userType: user.userType },
             process.env.REFRESH_TOKEN_SECRET,
             { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION }
         );
 
-        // Respond with tokens and user details
+        // Fetch Seller/Customer ID if applicable
+        let userTypeId = null;
+
+        if (user.userType === 0) {
+            // For seller, fetch sellerId
+            const seller = await prisma.product.findFirst({
+                where: { sellerId: user.id },
+            });
+            userTypeId = seller ? seller.sellerId : null;
+        } else if (user.userType === 1) {
+            // For customer, fetch customer ID from orders or cart
+            const customer = await prisma.order.findFirst({
+                where: { customerId: user.id },
+            });
+            userTypeId = customer ? customer.customerId : null;
+        }
+
+        // Respond with tokens, user details, and userTypeId (sellerId or customerId)
         return res.status(200).json({
             message: "Login successful",
             accessToken,
             refreshToken,
             user: {
+                id: user.id,
                 username: user.username,
                 userType: user.userType,
+                userTypeId // sellerId or customerId
             },
         });
     } catch (error) {
@@ -108,9 +127,7 @@ const loginUser = async (req, res) => {
     }
 };
 
-
-
 module.exports = {
     registerUser,
-    loginUser
+    loginUser,
 };

@@ -5,6 +5,8 @@ const {
     setPrice,
     uploadImage,
     updateDescription,
+    getProductsBySeller,
+    deleteProduct,
 } = require('../controllers/sellerController');
 const upload = require('../middleware/upload');  // Ensure this import is correct
 
@@ -14,12 +16,18 @@ const router = express.Router();
 router.post('/add-product', authenticateToken, upload.single('image'), addProduct);
 
 // Update the price of a product
-router.post('/set-price', authenticateToken, setPrice);
+router.put('/set-price', authenticateToken, setPrice);
 
 // Upload an image for a product
-router.post('/upload-image', authenticateToken, upload.single('image'), uploadImage);
+router.put('/upload-image', authenticateToken, upload.single('image'), uploadImage);
 
 // Update the description of a product
-router.post('/update-description', authenticateToken, updateDescription);
+router.put('/update-description', authenticateToken, updateDescription);
+
+// Get products by seller
+router.get('/products/:sellerId', authenticateToken, getProductsBySeller);
+
+//Delete products 
+router.delete('/delete-product/:productId', authenticateToken, deleteProduct);
 
 module.exports = router;
