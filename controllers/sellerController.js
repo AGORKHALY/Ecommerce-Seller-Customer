@@ -84,16 +84,25 @@ const uploadImage = async (req, res) => {
             return res.status(403).json({ message: 'Access denied: You are not authorized to update this product.' });
         }
 
+        // If the product already has an image, delete it first
         if (product.image) {
-            const oldImagePath = `./public${product.image}`;
+            const oldImagePath = path.resolve(__dirname, '..', 'media', product.image.replace('/media/', '')); // Convert to correct file path
+
+            // Log to check the path of the old image
+            console.log(`Trying to delete image at path: ${oldImagePath}`);
+
             if (fs.existsSync(oldImagePath)) {
-                fs.unlinkSync(oldImagePath);
+                fs.unlinkSync(oldImagePath);  // Delete the old image
+                console.log(`Old image ${product.image} deleted successfully.`);
+            } else {
+                console.log(`No image found at path: ${oldImagePath}`);
             }
         }
 
+        // Update the product with the new image
         const updatedProduct = await prisma.product.update({
             where: { id: productIdInt },
-            data: { image },
+            data: { image },  // Update the product with the new image path
         });
 
         return res.status(200).json({
@@ -105,6 +114,7 @@ const uploadImage = async (req, res) => {
         return res.status(500).json({ message: 'Error uploading image.', error });
     }
 };
+
 
 // Update the description of a product
 const updateDescription = async (req, res) => {
@@ -165,7 +175,6 @@ const getProductsBySeller = async (req, res) => {
     }
 };
 
-
 // Delete a product and its associated data
 const deleteProduct = async (req, res) => {
     const { productId } = req.params;  // Get productId from URL params
@@ -196,10 +205,27 @@ const deleteProduct = async (req, res) => {
 
         // Delete the product image if it exists
         if (product.image) {
-            const imagePath = `./public${product.image}`;
+            const imagePath = path.join(__dirname, '..', 'media', path.basename(product.image)); // Construct the correct path
+
+            console.log(`Trying to delete image at path: ${imagePath}`);
+
+            // Check if the file exists
             if (fs.existsSync(imagePath)) {
-                fs.unlinkSync(imagePath);  // Remove the image file from the server
+                console.log(`Image file found at ${imagePath}. Proceeding to delete.`);
+
+                // Delete the image
+                fs.unlink(imagePath, (err) => {
+                    if (err) {
+                        console.error(`Error deleting image: ${err.message}`);
+                    } else {
+                        console.log(`Image ${product.image} deleted successfully.`);
+                    }
+                });
+            } else {
+                console.log(`No image found at the specified path: ${imagePath}`);
             }
+        } else {
+            console.log('No image associated with this product.');
         }
 
         // Delete the product from the database
@@ -213,9 +239,6 @@ const deleteProduct = async (req, res) => {
         return res.status(500).json({ message: 'Error deleting product', error });
     }
 };
-
-
-
 
 module.exports = {
     addProduct,
