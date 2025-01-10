@@ -46,12 +46,12 @@ const SellerDashboard = () => {
         e.preventDefault();
         setError(''); // Reset error before submitting
 
-        if (!selectedProduct.name || !selectedProduct.price || !selectedProduct.description) {
+        if (!selectedProduct?.name || !selectedProduct?.price || !selectedProduct?.description) {
             setError('All fields are required!');
             return;
         }
 
-        const price = parseFloat(selectedProduct.price);
+        const price = Number(selectedProduct.price);
         if (isNaN(price)) {
             setError('Please enter a valid price.');
             return;
@@ -71,8 +71,17 @@ const SellerDashboard = () => {
             formData.append("description", selectedProduct.description);
             formData.append("price", price);  // Use the parsed price here
 
+            // Log the image file to check if it's correctly appended
             if (selectedProduct.image && selectedProduct.image instanceof File) {
+                console.log("Image file:", selectedProduct.image);
                 formData.append("image", selectedProduct.image);
+            } else if (selectedProduct.image) {
+                console.log("Image is not a valid file:", selectedProduct.image);
+            }
+
+            // Check if formData is being built correctly
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
             }
 
             if (selectedProduct?.id) {
@@ -107,9 +116,12 @@ const SellerDashboard = () => {
                     console.log("Description updated successfully!");
                 }
 
+                // Upload image
                 if (selectedProduct.image && selectedProduct.image instanceof File) {
                     console.log("Uploading image...");
-                    await axios.put(
+                    formData.append("productId", selectedProduct.id); // Add productId to the formData
+
+                    const uploadResponse = await axios.put(
                         "http://localhost:4000/api/seller/upload-image",
                         formData,
                         {
@@ -119,7 +131,7 @@ const SellerDashboard = () => {
                             },
                         }
                     );
-                    console.log("Image uploaded successfully!");
+                    console.log("Image uploaded successfully!", uploadResponse.data);
                 }
 
                 alert("Product updated successfully!");
@@ -148,11 +160,13 @@ const SellerDashboard = () => {
             }
         } catch (error) {
             console.error("Error in product submission:", error);
-            alert("Failed to update the product. Check the console for details.");
+            setError('Failed to update the product. Check the console for details.');
         } finally {
             setLoading(false); // Set loading to false after the operation is completed
         }
     };
+
+
 
     const handleEdit = (product) => {
         setSelectedProduct(product);
@@ -179,7 +193,7 @@ const SellerDashboard = () => {
             setProducts(products.filter((product) => product.id !== productId)); // Remove the deleted product from the list
         } catch (error) {
             console.error("Error deleting product:", error);
-            alert("Failed to delete the product. Check the console for details.");
+            setError('Failed to delete the product. Check the console for details.');
         }
     };
 
