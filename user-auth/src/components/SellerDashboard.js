@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 
 const SellerDashboard = () => {
-    const [products, setProducts] = useState([]); // List of products
-    const [selectedProduct, setSelectedProduct] = useState(null); // For adding or editing
-    const [error, setError] = useState(''); // Error state
-    const [loading, setLoading] = useState(false); // Loading state to manage requests
+    const { sellerId } = useParams();
+    const [products, setProducts] = useState([]);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const fetchProducts = async () => {
-        setLoading(true); // Set loading to true when fetching products
+    // Define fetchProducts as a useCallback hook to avoid recreating the function on each render
+    const fetchProducts = useCallback(async () => {
+        setLoading(true);
         try {
-            const sellerId = localStorage.getItem('sellerId'); // Get the sellerId from localStorage
             if (!sellerId) {
                 throw new Error('Seller ID not found');
             }
@@ -29,22 +31,23 @@ const SellerDashboard = () => {
                 }
             );
 
-            setProducts(response.data.products); // Update the state with the fetched products
-            setLoading(false); // Set loading to false after products are fetched
+            setProducts(response.data.products);
         } catch (error) {
             console.error('Error fetching products:', error);
-            setError('Error fetching products');
-            setLoading(false); // Set loading to false in case of error
+            setError(error.message || 'Error fetching products');
+        } finally {
+            setLoading(false);
         }
-    };
+    }, [sellerId]);
 
+    // Call fetchProducts whenever sellerId changes
     useEffect(() => {
         fetchProducts();
-    }, []);
+    }, [sellerId, fetchProducts]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(''); // Reset error before submitting
+        setError('');
 
         if (!selectedProduct?.name || !selectedProduct?.price || !selectedProduct?.description) {
             setError('All fields are required!');
@@ -63,33 +66,21 @@ const SellerDashboard = () => {
             return;
         }
 
-        setLoading(true); // Set loading to true during product submission
+        setLoading(true);
 
         try {
             const formData = new FormData();
             formData.append("name", selectedProduct.name);
             formData.append("description", selectedProduct.description);
-            formData.append("price", price);  // Use the parsed price here
+            formData.append("price", price);
 
-            // Log the image file to check if it's correctly appended
             if (selectedProduct.image && selectedProduct.image instanceof File) {
-                console.log("Image file:", selectedProduct.image);
                 formData.append("image", selectedProduct.image);
-            } else if (selectedProduct.image) {
-                console.log("Image is not a valid file:", selectedProduct.image);
-            }
-
-            // Check if formData is being built correctly
-            for (let [key, value] of formData.entries()) {
-                console.log(key, value);
             }
 
             if (selectedProduct?.id) {
-                // Editing an existing product
-                console.log("Updating product with ID:", selectedProduct.id);
-
+                // Editing existing product
                 if (price) {
-                    console.log("Updating price:", price);
                     await axios.put(
                         "http://localhost:4000/api/seller/set-price",
                         { productId: selectedProduct.id, newPrice: price },
@@ -99,11 +90,9 @@ const SellerDashboard = () => {
                             },
                         }
                     );
-                    console.log("Price updated successfully!");
                 }
 
                 if (selectedProduct.description) {
-                    console.log("Updating description:", selectedProduct.description);
                     await axios.put(
                         "http://localhost:4000/api/seller/update-description",
                         { productId: selectedProduct.id, newDescription: selectedProduct.description },
@@ -113,15 +102,11 @@ const SellerDashboard = () => {
                             },
                         }
                     );
-                    console.log("Description updated successfully!");
                 }
 
-                // Upload image
                 if (selectedProduct.image && selectedProduct.image instanceof File) {
-                    console.log("Uploading image...");
-                    formData.append("productId", selectedProduct.id); // Add productId to the formData
-
-                    const uploadResponse = await axios.put(
+                    formData.append("productId", selectedProduct.id);
+                    await axios.put(
                         "http://localhost:4000/api/seller/upload-image",
                         formData,
                         {
@@ -131,18 +116,13 @@ const SellerDashboard = () => {
                             },
                         }
                     );
-                    console.log("Image uploaded successfully!", uploadResponse.data);
                 }
 
                 alert("Product updated successfully!");
-                setSelectedProduct(null); // Clear the form
-
-                // Re-fetch the products to reflect the update
-                fetchProducts(); // This will refresh the product list after updating
+                setSelectedProduct(null);
+                fetchProducts();
             } else {
-                // Adding a new product
-                console.log("Adding new product...");
-
+                // Adding new product
                 const response = await axios.post(
                     "http://localhost:4000/api/seller/add-product",
                     formData,
@@ -154,19 +134,16 @@ const SellerDashboard = () => {
                     }
                 );
 
-                console.log("Product added successfully!", response.data);
-                setProducts([...products, response.data.product]); // Update product list
-                setSelectedProduct(null); // Clear the form
+                setProducts([...products, response.data.product]);
+                setSelectedProduct(null);
             }
         } catch (error) {
             console.error("Error in product submission:", error);
             setError('Failed to update the product. Check the console for details.');
         } finally {
-            setLoading(false); // Set loading to false after the operation is completed
+            setLoading(false);
         }
     };
-
-
 
     const handleEdit = (product) => {
         setSelectedProduct(product);
@@ -189,15 +166,13 @@ const SellerDashboard = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log("Product deleted successfully!");
-            setProducts(products.filter((product) => product.id !== productId)); // Remove the deleted product from the list
+            setProducts(products.filter((product) => product.id !== productId));
         } catch (error) {
             console.error("Error deleting product:", error);
             setError('Failed to delete the product. Check the console for details.');
         }
     };
 
-    // Style Object
     const styles = {
         container: {
             display: 'flex',
@@ -252,7 +227,6 @@ const SellerDashboard = () => {
         <div style={styles.container}>
             <h2>Seller Dashboard</h2>
 
-            {/* Product Form */}
             <form onSubmit={handleSubmit} style={styles.formWrapper}>
                 <h3>{selectedProduct?.id ? "Edit Product" : "Add Product"}</h3>
                 <input
@@ -262,7 +236,7 @@ const SellerDashboard = () => {
                     onChange={(e) =>
                         setSelectedProduct({ ...selectedProduct, name: e.target.value })
                     }
-                    required={!selectedProduct?.id} // Required only for new products
+                    required={!selectedProduct?.id}
                     style={styles.input}
                 />
                 <textarea
@@ -271,7 +245,7 @@ const SellerDashboard = () => {
                     onChange={(e) =>
                         setSelectedProduct({ ...selectedProduct, description: e.target.value })
                     }
-                    required={!selectedProduct?.id} // Required only for new products
+                    required={!selectedProduct?.id}
                     style={styles.input}
                 />
                 <input
@@ -281,11 +255,10 @@ const SellerDashboard = () => {
                     onChange={(e) =>
                         setSelectedProduct({ ...selectedProduct, price: e.target.value })
                     }
-                    required={!selectedProduct?.id} // Required only for new products
+                    required={!selectedProduct?.id}
                     style={styles.input}
                 />
 
-                {/* Display existing image if available */}
                 {selectedProduct?.image && typeof selectedProduct.image === 'string' && selectedProduct.image.startsWith("http") && (
                     <div>
                         <img
@@ -296,7 +269,6 @@ const SellerDashboard = () => {
                     </div>
                 )}
 
-                {/* File Input */}
                 <input
                     type="file"
                     onChange={(e) => {
@@ -313,10 +285,8 @@ const SellerDashboard = () => {
                 {selectedProduct?.id && <button type="button" onClick={handleCancel} style={styles.button}>Cancel</button>}
             </form>
 
-            {/* Error message */}
             {error && <p style={styles.errorMessage}>{error}</p>}
 
-            {/* Product List */}
             <h3>Product List</h3>
             {products.length === 0 ? (
                 <p>No products added by the seller.</p>

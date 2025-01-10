@@ -57,6 +57,7 @@ const registerUser = async (req, res) => {
     }
 };
 
+// Login User
 const loginUser = async (req, res) => {
     const { username, password } = req.body;
 
@@ -93,20 +94,22 @@ const loginUser = async (req, res) => {
         );
 
         // Fetch Seller/Customer ID if applicable
-        let userTypeId = null;
+        let userTypeId = user.id;  // Default to user.id if no specific sellerId or customerId is found
 
         if (user.userType === 0) {
-            // For seller, fetch sellerId
+            // For seller, fetch sellerId (if no products, default to user.id)
             const seller = await prisma.product.findFirst({
                 where: { sellerId: user.id },
             });
-            userTypeId = seller ? seller.sellerId : null;
+            userTypeId = seller ? seller.sellerId : user.id;  // Use user.id if no products exist
         } else if (user.userType === 1) {
             // For customer, fetch customer ID from orders or cart
             const customer = await prisma.order.findFirst({
                 where: { customerId: user.id },
+            }) || await prisma.cart.findFirst({
+                where: { customerId: user.id },
             });
-            userTypeId = customer ? customer.customerId : null;
+            userTypeId = customer ? customer.customerId : user.id;  // Use user.id if no orders or cart items exist
         }
 
         // Respond with tokens, user details, and userTypeId (sellerId or customerId)
@@ -118,7 +121,7 @@ const loginUser = async (req, res) => {
                 id: user.id,
                 username: user.username,
                 userType: user.userType,
-                userTypeId // sellerId or customerId
+                userTypeId // sellerId or customerId, or user.id if not available
             },
         });
     } catch (error) {
@@ -126,6 +129,7 @@ const loginUser = async (req, res) => {
         return res.status(500).json({ message: "Error during login", error });
     }
 };
+
 
 module.exports = {
     registerUser,

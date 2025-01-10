@@ -84,18 +84,22 @@ const Login = () => {
             });
 
             if (response.data.accessToken) {
-                localStorage.setItem('accessToken', response.data.accessToken);
-                localStorage.setItem('refreshToken', response.data.refreshToken);
-                localStorage.setItem('userType', response.data.user.userType);
-                localStorage.setItem('sellerId', response.data.user.userTypeId);
+                const { accessToken, refreshToken, user } = response.data;
+
+                // Store tokens and userType
+                localStorage.setItem('accessToken', accessToken);
+                localStorage.setItem('refreshToken', refreshToken);
+                localStorage.setItem('userType', user.userType);
 
                 toast.success('Login successful! Redirecting...', {
                     position: 'top-center',
                 });
 
                 setTimeout(() => {
-                    if (response.data.user.userType === 0) {
-                        navigate('/dashboard/seller');
+                    const sellerId = response.data.user.userTypeId;
+                    if (user.userType === 0) {
+                        // Navigate to the seller's dashboard using the sellerId
+                        navigate(`/dashboard/seller/${sellerId}`);
                     } else {
                         navigate('/dashboard/customer');
                     }
