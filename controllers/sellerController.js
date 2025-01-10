@@ -31,7 +31,6 @@ const addProduct = async (req, res) => {
 };
 
 // Update the price of a product
-// Update the price of a product
 const setPrice = async (req, res) => {
     const { productId, newPrice } = req.body;
 
@@ -157,16 +156,15 @@ const getProductsBySeller = async (req, res) => {
             },
         });
 
-        if (products.length === 0) {
-            return res.status(404).json({ message: 'No products found for this seller' });
-        }
+        // If no products found, return an empty array instead of 404
+        return res.status(200).json({ products: products.length > 0 ? products : [] });
 
-        return res.status(200).json({ products });
     } catch (error) {
         console.error('Error retrieving products for seller:', error);
         return res.status(500).json({ message: 'Error retrieving products', error });
     }
 };
+
 
 // Delete a product and its associated data
 const deleteProduct = async (req, res) => {
