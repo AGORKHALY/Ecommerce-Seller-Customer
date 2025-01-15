@@ -109,6 +109,60 @@ const deleteFromCart = async (req, res) => {
 };
 
 
+// Edit cart (increase/decrease quantity)
+const editCart = async (req, res) => {
+    const { cartItemId, action } = req.body; // action: 'increase' or 'decrease'
+
+    if (!cartItemId || !action) {
+        return res.status(400).json({ message: "Cart item ID and action are required" });
+    }
+
+    if (action !== 'increase' && action !== 'decrease') {
+        return res.status(400).json({ message: "Action must be 'increase' or 'decrease'" });
+    }
+
+    try {
+        // Fetch the cart item
+        const cartItem = await prisma.cart.findUnique({ where: { id: cartItemId } });
+
+        if (!cartItem || cartItem.customerId !== req.user.id) {
+            return res.status(404).json({ message: "Cart item not found or unauthorized" });
+        }
+
+        // Determine the new quantity based on the action
+        let newQuantity = cartItem.quantity;
+
+        if (action === 'increase') {
+            newQuantity += 1; // Increase quantity by 1
+        } else if (action === 'decrease') {
+            if (newQuantity <= 1) {
+                return res.status(400).json({ message: "Quantity can't be less than 1" });
+            }
+            newQuantity -= 1; // Decrease quantity by 1
+        }
+
+        // Update the cart item with the new quantity
+        const updatedCartItem = await prisma.cart.update({
+            where: { id: cartItemId },
+            data: { quantity: newQuantity },
+        });
+
+        // Fetch updated cart items
+        const updatedCartItems = await prisma.cart.findMany({
+            where: { customerId: req.user.id },
+            include: { product: true },
+        });
+
+        return res.status(200).json({
+            message: "Cart updated",
+            cartItems: updatedCartItems,
+        });
+    } catch (error) {
+        console.error("Error editing cart:", error);
+        return res.status(500).json({ message: "Error editing cart", error });
+    }
+};
+
 
 //View cart
 
@@ -122,10 +176,6 @@ const viewCart = async (req, res) => {
             }
         });
 
-        if (cartItems.length === 0) {
-            return res.status(404).json({ message: "Your cart is empty" });
-        }
-
         // Format the cart items response
         const cartDetails = cartItems.map(item => ({
             cartItemId: item.id,
@@ -137,6 +187,15 @@ const viewCart = async (req, res) => {
             image: item.product.image,
         }));
 
+        // If there are no items in the cart, return an empty array and a message
+        if (cartDetails.length === 0) {
+            return res.status(200).json({
+                message: "Your cart is empty",
+                cart: [],
+            });
+        }
+
+        // Return cart details with success message
         return res.status(200).json({
             message: "Cart retrieved successfully",
             cart: cartDetails,
@@ -145,6 +204,7 @@ const viewCart = async (req, res) => {
         return res.status(500).json({ message: "Error retrieving cart", error });
     }
 };
+
 
 
 // Buy products (place an order and delete from cart)
@@ -213,6 +273,7 @@ module.exports = {
     addToCart,
     viewCart,
     deleteFromCart,
+    editCart,
     buy,
     viewOrderHistory
 };
