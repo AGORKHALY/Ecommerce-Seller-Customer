@@ -1,15 +1,24 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SellerDashboard = () => {
     const { sellerId } = useParams();
+    const navigate = useNavigate();
     const [products, setProducts] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // Define fetchProducts as a useCallback hook to avoid recreating the function on each render
+    // Store the sellerId in localStorage
+    useEffect(() => {
+        if (sellerId) {
+            localStorage.setItem('sellerId', sellerId); // Storing sellerId in local storage
+        }
+    }, [sellerId]);
+
     const fetchProducts = useCallback(async () => {
         setLoading(true);
         try {
@@ -35,12 +44,12 @@ const SellerDashboard = () => {
         } catch (error) {
             console.error('Error fetching products:', error);
             setError(error.message || 'Error fetching products');
+            toast.error('Failed to fetch products. Please try again!');
         } finally {
             setLoading(false);
         }
     }, [sellerId]);
 
-    // Call fetchProducts whenever sellerId changes
     useEffect(() => {
         fetchProducts();
     }, [sellerId, fetchProducts]);
@@ -51,18 +60,20 @@ const SellerDashboard = () => {
 
         if (!selectedProduct?.name || !selectedProduct?.price || !selectedProduct?.description) {
             setError('All fields are required!');
+            toast.error('All fields are required!');
             return;
         }
 
         const price = Number(selectedProduct.price);
         if (isNaN(price)) {
             setError('Please enter a valid price.');
+            toast.error('Please enter a valid price!');
             return;
         }
 
         const token = localStorage.getItem("accessToken");
         if (!token) {
-            alert("Authentication token not found");
+            toast.error("Authentication token not found!");
             return;
         }
 
@@ -79,7 +90,6 @@ const SellerDashboard = () => {
             }
 
             if (selectedProduct?.id) {
-                // Editing existing product
                 if (price) {
                     await axios.put(
                         "http://localhost:4000/api/seller/set-price",
@@ -118,11 +128,10 @@ const SellerDashboard = () => {
                     );
                 }
 
-                alert("Product updated successfully!");
+                toast.success("Product updated successfully!");
                 setSelectedProduct(null);
                 fetchProducts();
             } else {
-                // Adding new product
                 const response = await axios.post(
                     "http://localhost:4000/api/seller/add-product",
                     formData,
@@ -136,10 +145,12 @@ const SellerDashboard = () => {
 
                 setProducts([...products, response.data.product]);
                 setSelectedProduct(null);
+                toast.success("Product added successfully!");
             }
         } catch (error) {
             console.error("Error in product submission:", error);
             setError('Failed to update the product. Check the console for details.');
+            toast.error('Failed to update the product. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -156,7 +167,7 @@ const SellerDashboard = () => {
     const handleDelete = async (productId) => {
         const token = localStorage.getItem("accessToken");
         if (!token) {
-            alert("Authentication token not found");
+            toast.error("Authentication token not found!");
             return;
         }
 
@@ -167,9 +178,45 @@ const SellerDashboard = () => {
                 },
             });
             setProducts(products.filter((product) => product.id !== productId));
+            toast.success("Product deleted successfully!");
         } catch (error) {
             console.error("Error deleting product:", error);
             setError('Failed to delete the product. Check the console for details.');
+            toast.error('Failed to delete the product. Please try again.');
+        }
+    };
+
+    const logoutUser = async () => {
+        try {
+            const refreshToken = localStorage.getItem('refreshToken');
+            if (!refreshToken) {
+                console.log("No refresh token found");
+                return;
+            }
+
+            const response = await axios.post(
+                'http://localhost:4000/api/users/logout',
+                { refreshToken },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }
+            );
+
+            if (response.data.message === "User logged out successfully") {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                toast.success("Logged out successfully!");
+                setTimeout(() => {
+                    navigate('/login');
+                }, 2000);
+            } else {
+                toast.error("Unexpected logout response.");
+            }
+        } catch (error) {
+            console.error("Error logging out:", error.response?.data || error.message);
+            toast.error("Failed to log out. Please try again.");
         }
     };
 
@@ -263,44 +310,73 @@ const SellerDashboard = () => {
                     <div>
                         <img
                             src={`http://localhost:4000${selectedProduct.image}`}
-                            alt="Product"
-                            style={{ width: "100px", height: "100px" }}
+                            alt="Preview"
+                            style={{ maxWidth: "200px", marginTop: "10px" }}
                         />
                     </div>
                 )}
 
                 <input
                     type="file"
-                    onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                            setSelectedProduct({ ...selectedProduct, image: file });
-                        }
-                    }}
+                    onChange={(e) =>
+                        setSelectedProduct({
+                            ...selectedProduct,
+                            image: e.target.files[0],
+                        })
+                    }
                     style={styles.input}
                 />
-                <button type="submit" style={styles.button} disabled={loading}>
-                    {loading ? "Processing..." : selectedProduct?.id ? "Update Product" : "Add Product"}
+
+                {error && <div style={styles.errorMessage}>{error}</div>}
+
+                <button type="submit" style={styles.button}>
+                    {loading ? "Loading..." : selectedProduct?.id ? "Update Product" : "Add Product"}
                 </button>
-                {selectedProduct?.id && <button type="button" onClick={handleCancel} style={styles.button}>Cancel</button>}
+                {selectedProduct?.id && (
+                    <button
+                        type="button"
+                        onClick={handleCancel}
+                        style={{ ...styles.button, backgroundColor: "#6c757d" }}
+                    >
+                        Cancel
+                    </button>
+                )}
             </form>
 
-            {error && <p style={styles.errorMessage}>{error}</p>}
+            <ul style={styles.productList}>
+                {products.map((product) => (
+                    <li key={product.id} style={styles.productItem}>
+                        <strong>{product.name}</strong>
+                        <p>{product.description}</p>
+                        <p>Price: ${product.price}</p>
+                        <button
+                            onClick={() => handleEdit(product)}
+                            style={{ ...styles.button, marginRight: "10px" }}
+                        >
+                            Edit
+                        </button>
+                        <button
+                            onClick={() => handleDelete(product.id)}
+                            style={{ ...styles.button, backgroundColor: "red" }}
+                        >
+                            Delete
+                        </button>
+                    </li>
+                ))}
+            </ul>
 
-            <h3>Product List</h3>
-            {products.length === 0 ? (
-                <p>No products added by the seller.</p>
-            ) : (
-                <ul style={styles.productList}>
-                    {products.map((product) => (
-                        <li key={product.id} style={styles.productItem}>
-                            <strong>{product.name}</strong> - ${product.price}
-                            <button onClick={() => handleEdit(product)} style={styles.button}>Edit</button>
-                            <button onClick={() => handleDelete(product.id)} style={styles.button}>Delete</button>
-                        </li>
-                    ))}
-                </ul>
-            )}
+            <button
+                onClick={logoutUser}
+                style={{
+                    ...styles.button,
+                    backgroundColor: "red",
+                    marginTop: "20px",
+                }}
+            >
+                Logout
+            </button>
+
+            <ToastContainer position="top-right" autoClose={3000} />
         </div>
     );
 };

@@ -1,6 +1,6 @@
 
 const express = require('express');
-const { registerUser } = require('../controllers/userController');
+const { registerUser, logoutUser } = require('../controllers/userController');
 const { loginUser } = require("../controllers/userController")
 
 require('dotenv').config()
@@ -12,5 +12,8 @@ router.post('/register', registerUser);
 
 // Route for user login
 router.post('/login', loginUser);
+
+//Route for user logout
+router.post('/logout', logoutUser);
 
 module.exports = router;

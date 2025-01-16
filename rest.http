@@ -9,13 +9,21 @@
 # }
 
 
-# //LOGIN USER TO GET TOKEN
+//LOGIN USER TO GET TOKEN
 # POST http://localhost:4000/api/users/login
 # Content-Type: application/json
 
 # {
-#   "username": "Sulle",
-#   "password": "Sullepassword123"
+#   "username": "Shiwani",
+#   "password": "Shiwanipassword123"
+# }
+
+//LOGOUT USER
+# POST http://localhost:4000/api/users/logout
+# Content-Type: application/json
+
+# {
+#   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJTaGl3YW5pIiwidXNlclR5cGUiOjAsImlhdCI6MTczNzAxODQ4NSwiZXhwIjoxNzM3NjIzMjg1fQ.l2X_92RYDie0izO9UZs-nLsVu2s31zwWXFB0duEvkvw"
 # }
 
 

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify'; // Importing react-toastify
+import 'react-toastify/dist/ReactToastify.css'; // Import the styles
 
 const CustomerDashboard = () => {
     const [loading, setLoading] = useState(true);
@@ -49,10 +51,12 @@ const CustomerDashboard = () => {
                 }
             );
             setCartMessage(response.data.message || 'Product added to cart successfully!');
+            toast.success('Product added to cart successfully!'); // Show success toast
             setTimeout(() => setCartMessage(null), 3000);
         } catch (error) {
             console.error('Error adding to cart:', error);
             setCartMessage('Failed to add product to cart. Please try again.');
+            toast.error('Failed to add product to cart. Please try again.'); // Show error toast
             setTimeout(() => setCartMessage(null), 3000);
         }
     };
@@ -63,6 +67,50 @@ const CustomerDashboard = () => {
 
     const viewOrderHistory = () => {
         navigate('/customer/order-history');
+    };
+
+    const logoutUser = async () => {
+        try {
+            const refreshToken = localStorage.getItem('refreshToken');  // Get refresh token from storage
+            if (!refreshToken) {
+                console.log("No refresh token found");
+                return;
+            }
+
+            // Make the API call to logout the user
+            const response = await axios.post(
+                'http://localhost:4000/api/users/logout',
+                { refreshToken },  // Pass the refresh token in the body
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }
+            );
+
+            // Check if logout was successful by validating the backend response
+            if (response.data.message === "User logged out successfully") {
+                console.log("Logout success:", response.data);
+
+                // Clear local storage after successful logout
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+
+                // Show success toast
+                toast.success('Logged out successfully!');
+
+                // Redirect to login page after 2 seconds
+                setTimeout(() => {
+                    navigate('/login');  // Use navigate from react-router-dom
+                }, 2000);
+            } else {
+                console.log("Unexpected response:", response.data);
+                toast.error('Unexpected response during logout!');
+            }
+        } catch (error) {
+            console.error("Error logging out:", error.response?.data || error.message);
+            toast.error('Error logging out. Please try again.');
+        }
     };
 
     if (loading) {
@@ -82,6 +130,9 @@ const CustomerDashboard = () => {
             </button>
             <button onClick={viewOrderHistory} className="view-order-history-button">
                 View Order History
+            </button>
+            <button onClick={logoutUser} className="logout-button">
+                Logout
             </button>
             <div className="product-container">
                 {products.length === 0 ? (
@@ -107,6 +158,9 @@ const CustomerDashboard = () => {
                     ))
                 )}
             </div>
+
+            {/* Add the ToastContainer to show the toasts */}
+            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} />
 
             <style jsx="true">{`
                 .cart-message {
@@ -172,6 +226,20 @@ const CustomerDashboard = () => {
 
                 .add-to-cart-button:hover {
                     background-color: #218838;
+                }
+
+                .logout-button {
+                    background-color: #dc3545;
+                    color: white;
+                    border: none;
+                    padding: 10px 15px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    margin-top: 20px;
+                }
+
+                .logout-button:hover {
+                    background-color: #c82333;
                 }
             `}</style>
         </div>

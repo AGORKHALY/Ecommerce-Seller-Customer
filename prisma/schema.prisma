@@ -9,15 +9,16 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  username  String    @unique
-  password  String
-  userType  Int // 1 for Customer, 0 for Seller
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  products  Product[] @relation("SellerProducts") // Only applicable for Sellers
-  orders    Order[]   @relation("CustomerOrders") // Only applicable for Customers
-  cart      Cart[]    @relation("CustomerCart") // Customer's cart
+  id           Int           @id @default(autoincrement())
+  username     String        @unique
+  password     String
+  userType     Int // 1 for Customer, 0 for Seller
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  products     Product[]     @relation("SellerProducts") // Only applicable for Sellers
+  orders       Order[]       @relation("CustomerOrders") // Only applicable for Customers
+  cart         Cart[]        @relation("CustomerCart") // Customer's cart
+  refreshToken RefreshToken? @relation("UserRefreshToken") // Define relation only on the User model
 }
 
 model Product {
@@ -62,4 +63,12 @@ model OrderItem {
   product   Product @relation("ProductOrderItems", fields: [productId], references: [id], onDelete: Cascade)
   quantity  Int
   price     Float
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String
+  userId    Int      @unique
+  user      User     @relation("UserRefreshToken", fields: [userId], references: [id]) // Relation defined only here
+  createdAt DateTime @default(now())
 }
