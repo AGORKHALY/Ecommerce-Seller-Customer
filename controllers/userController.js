@@ -10,10 +10,12 @@ const registerUser = async (req, res) => {
     try {
         const { username, password, userType } = req.body;
 
+        // Validate input
         if (!username || !password || (userType !== 0 && userType !== 1)) {
             return res.status(400).json({ error: 'Invalid input: username, password, and userType are required' });
         }
 
+        // Check if username already exists
         const existingUser = await prisma.user.findUnique({
             where: { username },
         });
@@ -21,8 +23,10 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ error: 'Username already exists.' });
         }
 
+        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Create the new user
         const newUser = await prisma.user.create({
             data: {
                 username,
@@ -31,39 +35,65 @@ const registerUser = async (req, res) => {
             },
         });
 
-        // Generate the access and refresh tokens
+        // Fetch the userTypeId depending on userType
+        let userTypeId = newUser.id;  // Default to the user's id
+
+        if (newUser.userType === 0) {
+            // If the user is a seller, fetch the seller details
+            const seller = await prisma.product.findFirst({
+                where: { sellerId: newUser.id },
+            });
+            userTypeId = seller ? seller.sellerId : newUser.id;  // Set the sellerId or userId
+        } else if (newUser.userType === 1) {
+            // If the user is a customer, fetch the customer details
+            const customer = await prisma.order.findFirst({
+                where: { customerId: newUser.id },
+            }) || await prisma.cart.findFirst({
+                where: { customerId: newUser.id },
+            });
+            userTypeId = customer ? customer.customerId : newUser.id;  // Set the customerId or userId
+        }
+
+        // Generate the access token
         const accessToken = jwt.sign(
             { id: newUser.id, username: newUser.username, userType: newUser.userType },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRATION }
         );
 
+        // Generate the refresh token
         const refreshToken = jwt.sign(
             { id: newUser.id, username: newUser.username, userType: newUser.userType },
             process.env.REFRESH_TOKEN_SECRET,
             { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION }
         );
 
-        // Store refresh token in the database
+        // Store the refresh token in the database
         await prisma.refreshToken.create({
             data: {
                 token: refreshToken,
                 userId: newUser.id,
-            }
+            },
         });
 
-        // Respond with tokens and user details
+        // Respond with success, tokens, user details, and userTypeId
         res.status(201).json({
             message: 'User registered successfully.',
             accessToken,
             refreshToken,
-            user: { id: newUser.id, username: newUser.username, userType: newUser.userType },
+            user: {
+                id: newUser.id,
+                username: newUser.username,
+                userType: newUser.userType,
+                userTypeId  // Include userTypeId in the response
+            },
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'An error occurred while registering the user' });
     }
 };
+
 
 // Login User
 const loginUser = async (req, res) => {
